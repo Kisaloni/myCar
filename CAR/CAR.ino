@@ -1,4 +1,13 @@
-#include <Servo.h>
+#include<Servo.h>
+
+/**changes starts */
+IPAddress staticIP832_150(192,168,1,150);
+IPAddress gateway832_150(192,168,1,1);
+IPAddress subnet832_150(255,255,255,0);
+
+String  i;
+WiFiServer server(80);
+/**changes ends */
 
 #define headLight 16
 #define breakLight 5
@@ -11,33 +20,65 @@
 Servo steer;
 void setup() {
   // put your setup code here, to run once:
-pinMode(headLight,OUTPUT);
-pinMode(breakLight,OUTPUT);
-pinMode(mot1En,OUTPUT);
-pinMode(mot1For,OUTPUT);
-pinMode(mot1Back,OUTPUT);
-pinMode(mot2En,OUTPUT);
-pinMode(mot2For,OUTPUT);
-pinMode(mot2Back,OUTPUT);
-steer.attach(15);
-steer.write(90);
-digitalWrite(headLight,LOW);
-digitalWrite(breakLight,LOW);
-digitalWrite(mot1En,HIGH);
-digitalWrite(mot1For,LOW);
-digitalWrite(mot1Back,LOW);
-digitalWrite(mot2En,HIGH);
-digitalWrite(mot2For,LOW);
-digitalWrite(mot2Back,LOW);
-Serial.begin(9600);
+  pinMode(headLight,OUTPUT);
+  pinMode(breakLight,OUTPUT);
+  pinMode(mot1En,OUTPUT);
+  pinMode(mot1For,OUTPUT);
+  pinMode(mot1Back,OUTPUT);
+  pinMode(mot2En,OUTPUT);
+  pinMode(mot2For,OUTPUT);
+  pinMode(mot2Back,OUTPUT);
+  steer.attach(15);
+  steer.write(90);
+  digitalWrite(headLight,LOW);
+  digitalWrite(breakLight,LOW);
+  digitalWrite(mot1En,HIGH);
+  digitalWrite(mot1For,LOW);
+  digitalWrite(mot1Back,LOW);
+  digitalWrite(mot2En,HIGH);
+  digitalWrite(mot2For,LOW);
+  digitalWrite(mot2Back,LOW);
+  Serial.begin(9600);
+  /**changes starts */
+  i = "";
+  WiFi.disconnect();
+  delay(1000);
+  Serial.println(" ");
+  Serial.println(" ");
+  Serial.println("Ready to Connect");
+  WiFi.begin("MY SM-J7","12345678");
+  while ((!(WiFi.status() == WL_CONNECTED))){
+    delay(300);
+    Serial.print("...");
+  }
+  delay(1000);
+  WiFi.config(staticIP832_150, gateway832_150, subnet832_150);
+  delay(1000);
+  Serial.println("Connected to dlink");
+  Serial.println("Local IP:");
+  Serial.println((WiFi.localIP().toString()));
+  Serial.println("Gateway IP");
+  Serial.println((WiFi.gatewayIP().toString().c_str()));
+  Serial.println("Host Name");
+  Serial.println((WiFi.hostname()));
+  /**changes ends */
 }
 
 void loop() {
-  
-    while(Serial.available()==0){
-      //Serial.println("...");  
-    }int command=0;
-    command=Serial.parseInt();
+    /**changes starts */
+    WiFiClient client = server.available();
+    if (!client) { return; }
+    while(!client.available()){  delay(1); }
+    i = (client.readStringUntil('\r'));
+    i.remove(0, 5);
+    i.remove(i.length()-9,9);
+    Serial.println(i);
+    command=parseInt(i);
+    /**changes ends */
+    // while(Serial.available()==0){
+    //   //Serial.println("...");  
+    // }int command=0;
+    // command=Serial.parseInt();
     Serial.println(command);
   switch(command){
     case 1:
